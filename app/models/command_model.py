@@ -1,0 +1,72 @@
+from abc import ABC, abstractmethod
+
+# --- Command Interface ---
+class Command(ABC):
+    @abstractmethod
+    def to_dict(self):
+        pass
+
+
+# --- Concrete Commands ---
+class ShutdownCommand(Command):
+    def to_dict(self):
+        return {"type": "shutdown"}
+
+
+class RestartCommand(Command):
+    def to_dict(self):
+        return {"type": "restart"}
+
+
+class KillAppCommand(Command):
+    def __init__(self, app_name: str):
+        self.app_name = app_name
+
+    def to_dict(self):
+        return {"type": "kill_app", "target": self.app_name}
+
+
+class ChatCommand(Command):
+    """Gửi tin nhắn tới Agent (để hiển thị popup hoặc qua UI chat)."""
+    def __init__(self, message: str, sender: str = "controller"):
+        self.message = message
+        self.sender = sender
+
+    def to_dict(self):
+        return {"type": "chat", "from": self.sender, "message": self.message}
+
+
+class ScreenshotCommand(Command):
+    """Yêu cầu Agent chụp màn hình và gửi lại."""
+    def __init__(self, reply_to: str = None):
+        # reply_to có thể là telegram chat id hoặc ws id
+        self.reply_to = reply_to
+
+    def to_dict(self):
+        return {"type": "screenshot", "reply_to": self.reply_to}
+
+class ShellCommand(Command):
+    def __init__(self, command: str):
+        self.command = command
+
+    def to_dict(self):
+        return {"type": "shell", "command": self.command}
+
+# --- Factory ---
+class CommandFactory:
+    @staticmethod
+    def create_command(cmd_type: str, payload: dict):
+        if cmd_type == "shutdown":
+            return ShutdownCommand()
+        elif cmd_type == "restart":
+            return RestartCommand()
+        elif cmd_type == "kill_app":
+            return KillAppCommand(payload.get("app_name", ""))
+        elif cmd_type == "chat":
+            return ChatCommand(payload.get("message", ""), payload.get("sender", "controller"))
+        elif cmd_type == "screenshot":
+            return ScreenshotCommand(payload.get("reply_to"))
+        elif cmd_type == "shell":
+            return ShellCommand(payload.get("command", ""))
+        else:
+            raise ValueError(f"Unknown command type: {cmd_type}")

@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:
+  websocket-server:
+    build: .
+    container_name: websocket_server
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    environment:
+      - PYTHONUNBUFFERED=1

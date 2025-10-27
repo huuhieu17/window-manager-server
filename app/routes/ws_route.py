@@ -9,7 +9,6 @@ manager = ConnectionManager()
 command_service = CommandService(manager)
 chat_service = ChatService(manager)
 # Lưu kết nối theo loại và ID
-connected_agents = {}
 connected_clients = {}
 
 @router.websocket("/ws/{device_id}")
@@ -32,6 +31,18 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             msg_type = message.get("type")
             target_id = message.get("to")
             payload = message.get("payload", {})
+            
+            # Xử lý connect tới agent
+            if msg_type == "connect_agent":
+                if connected_clients.get(target_id):
+                    await connected_clients[identity].send(json.dumps({
+                        "type": "connect_success",
+                        "message": "Connected to agent successfully.",
+                        "controller_id": identity,
+                    }))
+                print(f"[+] Agent connected: {target_id}")
+                continue
+                
 
             if msg_type == "command":
                 await command_service.send_command(target_id, payload.get("cmd_type"), payload)
@@ -39,8 +50,8 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 await chat_service.relay_message(device_id, target_id, payload.get("message"))
             elif msg_type == "get_list_running_process":
                 agent_id = message.get("agent_id")
-                if agent_id in connected_agents:
-                    await connected_agents[agent_id].send(json.dumps({
+                if agent_id in connected_clients:
+                    await connected_clients[agent_id].send(json.dumps({
                         "type": "get_list_running_process",
                         "data": message.get("data"),
                         "controller_id": identity,

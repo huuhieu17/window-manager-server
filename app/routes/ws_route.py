@@ -37,6 +37,26 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 await command_service.send_command(target_id, payload.get("cmd_type"), payload)
             elif msg_type == "chat":
                 await chat_service.relay_message(device_id, target_id, payload.get("message"))
+            elif msg_type == "get_list_running_process":
+                agent_id = message.get("agent_id")
+                if agent_id in connected_agents:
+                    await connected_agents[agent_id].send(json.dumps({
+                        "type": "get_list_running_process",
+                        "data": message.get("data"),
+                        "controller_id": identity,
+                    }))
+                    print(f"[<] Forwarded get_list_running_process to client {identity}")
+    
+            elif msg_type == "forward_list_running_process":
+                controller_id = message.get("controller_id")
+                if controller_id in connected_clients:
+                    await connected_clients[controller_id].send(json.dumps({
+                        "type": "forward_list_running_process",
+                        "data": message.get("data"),
+                        "agent_id": message.get("agent_id"),
+                    }))
+                    print(f"[<] Forwarded forward_list_running_process to client {controller_id}")
+                    
             elif msg_type == "ping":
                 await websocket.send_text("pong")
             elif msg_type == "command_result":

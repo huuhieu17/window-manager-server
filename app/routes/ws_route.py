@@ -24,9 +24,9 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
             except json.JSONDecodeError:
                 continue
 
-            identity = message.get("client_id")
-            connected_clients[identity] = websocket
-            print(f"[+] Mobile client registered: {identity}")
+            # Lưu ngay device_id vào connected_clients
+		    connected_clients[device_id] = websocket
+		    print(f"[+] Device connected: {device_id}")
 
             msg_type = message.get("type")
             target_id = message.get("to")

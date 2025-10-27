@@ -25,8 +25,8 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 continue
 
             # Lưu ngay device_id vào connected_clients
-		    connected_clients[device_id] = websocket
-		    print(f"[+] Device connected: {device_id}")
+            connected_clients[device_id] = websocket
+            print(f"[+] Device connected: {device_id}")
 
             msg_type = message.get("type")
             target_id = message.get("to")

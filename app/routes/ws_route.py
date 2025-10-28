@@ -34,9 +34,14 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                     await manager.send_to_device(identity, json.dumps({
                         "type": "connect_success",
                         "message": "Connected to agent successfully.",
+                        "agent_id": identity,
+                    }))
+                    print(f"[+] {identity} connected to: {target_id}")
+                    await manager.send_to_device(target_id,json.dumps({
+                        "type": "connect_success",
+                        "message": "Connected to controller successfully.",
                         "controller_id": identity,
                     }))
-                    print(f"[+] Agent connected: {target_id}")
                 else:
                     await manager.send_to_device(identity, json.dumps({
                         "type": "error",

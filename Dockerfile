@@ -1,15 +1,13 @@
 # --- Stage 1: Base image ---
 FROM python:3.11-slim AS base
 
-WORKDIR /app
+WORKDIR /
 
-# Giảm layer cache bằng cách copy requirements trước
-COPY requirements.txt .
+# Copy source code
+COPY . .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy source code
-COPY app .
 
 EXPOSE 8000
 

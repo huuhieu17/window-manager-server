@@ -80,12 +80,6 @@ class RequestListProcess(Command):
         self.controller_id = controller_id
     def to_dict(self):
         return {"type": "get_list_process", "controller_id": self.controller_id}
-
-class ResponseListProcess(Command):
-    def __init__(self, target_id: str = None):
-        self.target_id = target_id
-    def to_dict(self):
-        return {"type": "list_process", "target_id": self.target_id}
     
 # --- Factory ---
 class CommandFactory:
@@ -115,7 +109,5 @@ class CommandFactory:
             return DisableWifiCommand()
         elif cmd_type == "get_list_process":
             return RequestListProcess(payload.get('controller_id'))
-        elif cmd_type == "list_process":
-            return ResponseListProcess(payload.get('target_id'))
         else:
             raise ValueError(f"Unknown command type: {cmd_type}")

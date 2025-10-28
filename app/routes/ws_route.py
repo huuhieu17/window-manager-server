@@ -50,41 +50,30 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 continue
 
             # ----- COMMAND -----
-            if msg_type == "command":
+            elif msg_type == "command":
                 await command_service.send_command(target_id, payload.get("cmd_type"), payload)
                 continue
 
             # ----- CHAT -----
-            if msg_type == "chat":
+            elif msg_type == "chat":
                 await chat_service.relay_message(device_id, target_id, payload.get("message"))
                 continue
 
-            # ----- GET LIST RUNNING PROCESS -----
-            if msg_type == "get_list_running_process":
-                agent_id = message.get("agent_id")
-                if agent_id in manager.active_connections:
-                    await manager.send_to_device(agent_id, json.dumps({
-                        "type": "get_list_running_process",
-                        "data": message.get("data"),
-                        "controller_id": identity,
-                    }))
-                    print(f"[<] Forwarded get_list_running_process to agent {agent_id}")
-                continue
-
             # ----- FORWARD LIST RUNNING PROCESS -----
-            if msg_type == "forward_list_running_process":
-                controller_id = message.get("controller_id")
+            elif msg_type == "forward_list_running_process":
+                controller_id = message.get("client_id")
                 if controller_id in manager.active_connections:
                     await manager.send_to_device(controller_id, json.dumps({
                         "type": "forward_list_running_process",
                         "data": message.get("data"),
                         "agent_id": message.get("agent_id"),
+                        "controller_id": target_id
                     }))
                     print(f"[<] Forwarded forward_list_running_process to controller {controller_id}")
                 continue
 
             # ----- COMMAND RESULT -----
-            if msg_type == "command_result":
+            elif msg_type == "command_result":
                 client_id = message.get("client_id")
                 if client_id in manager.active_connections:
                     await manager.send_to_device(client_id, json.dumps({
@@ -96,9 +85,12 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 continue
 
             # ----- PING -----
-            if msg_type == "ping":
+            elif msg_type == "ping":
                 await manager.send_to_device(device_id, json.dumps({"type": "pong"}))
                 continue
+            else:
+                await manager.send_to_device(identity, json.dumps(message))
+
 
     except WebSocketDisconnect:
         manager.disconnect(device_id)

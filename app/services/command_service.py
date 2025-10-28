@@ -13,7 +13,7 @@ class CommandService:
 
         # Gói theo format thống nhất để client dễ parse
         message = {
-            "event": "command",
+            "type": "command",
             "data": command_data
         }
 

@@ -56,7 +56,7 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
 
             # ----- CHAT -----
             elif msg_type == "chat":
-                msg = message.get("message") | ""
+                msg = message.get("message")
                 await chat_service.relay_message(device_id, target_id, msg)
                 continue
 

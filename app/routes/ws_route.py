@@ -78,7 +78,7 @@ async def websocket_endpoint(websocket: WebSocket, device_id: str):
                 if client_id in manager.active_connections:
                     await manager.send_to_device(client_id, json.dumps({
                         "type": "command_result",
-                        "data": message.get("data"),
+                        "data": message.get("output"),
                         "agent_id": message.get("agent_id"),
                     }))
                     print(f"[<] Forwarded command_result to client {client_id}")

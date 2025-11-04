@@ -18,12 +18,12 @@ class RestartCommand(Command):
         return {"type": "restart"}
 
 
-class KillAppCommand(Command):
+class KillProcessCommand(Command):
     def __init__(self, process_id: str):
         self.process_id = process_id
 
     def to_dict(self):
-        return {"type": "kill_app", "target": self.process_id}
+        return {"type": "kill_process", "target": self.process_id}
 
 class LockScreenCommand(Command):
     """Khoá thiết bị"""
@@ -89,8 +89,8 @@ class CommandFactory:
             return ShutdownCommand()
         elif cmd_type == "restart":
             return RestartCommand()
-        elif cmd_type == "kill_app":
-            return KillAppCommand(payload.get("app_name", ""))
+        elif cmd_type == "kill_process":
+            return KillProcessCommand(payload.get("pid", ""))
         elif cmd_type == "chat":
             return ChatCommand(payload.get("message", ""), payload.get("sender", "controller"))
         elif cmd_type == "screenshot":
